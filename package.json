@@ -1,0 +1,18 @@
+{
+  "name": "math-invaders",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test:unit": "node --experimental-strip-types tests/mathEngine.test.ts && node --experimental-strip-types tests/sectorBoss.test.ts && node --experimental-strip-types tests/milestone3ControlsAndVisuals.test.ts && node --experimental-strip-types tests/answerModeAndLaneChange.test.ts && node --experimental-strip-types tests/weaponArchetypesAndMonsterLife.test.ts && node --experimental-strip-types tests/typographyAndLegibility.test.ts && node --experimental-strip-types tests/adultDescentSpeedAndMonsterLife.test.ts",
+    "test:e2e": "node test_qc.js && node test_mobile_qc.js && node test_multiple_choice_qc.js && node test_adult_speed_qc.js",
+    "test": "npm run test:unit && npm run test:e2e"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0"
+  }
+}
