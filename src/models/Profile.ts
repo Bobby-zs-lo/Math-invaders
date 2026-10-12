@@ -7,6 +7,7 @@ export interface MathSettings {
   grade?: number;
   answerMode?: 'manual' | 'multiple_choice';
   descentSpeedMultiplier?: number;
+  speechEnabled?: boolean;
 }
 
 export interface StageResult {
@@ -251,7 +252,7 @@ export function getDefaultMathSettingsForGrade(grade: number): MathSettings {
       };
     }
   };
-  return { ...getBase(), answerMode: 'manual', descentSpeedMultiplier: 1.0 };
+  return { ...getBase(), answerMode: 'manual', descentSpeedMultiplier: 1.0, speechEnabled: true };
 }
 
 export function createNewProfile(name: string, avatar: string, gradeLevel: number): PlayerProfile {
@@ -329,6 +330,9 @@ export function loadProfiles(): PlayerProfile[] {
       }
       if (profile.mathSettings.descentSpeedMultiplier === undefined) {
         profile.mathSettings.descentSpeedMultiplier = 1.0;
+      }
+      if (profile.mathSettings.speechEnabled === undefined) {
+        profile.mathSettings.speechEnabled = true;
       }
       if (!profile.stats) {
         profile.stats = {

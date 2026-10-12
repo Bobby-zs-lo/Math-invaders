@@ -1,5 +1,6 @@
-import { PlayerProfile, getDefaultMathSettingsForGrade, updateActiveProfile, MathSettings, DANISH_GRADE_CURRICULUM } from '../models/Profile';
-import { getLanguage, setLanguage, t } from '../i18n/translations';
+import { PlayerProfile, getDefaultMathSettingsForGrade, updateActiveProfile, MathSettings, DANISH_GRADE_CURRICULUM } from '../models/Profile.ts';
+import { getLanguage, setLanguage, t } from '../i18n/translations.ts';
+import { speechEngine } from '../engine/SpeechEngine.ts';
 
 export class DifficultyModal {
   private container: HTMLElement;
@@ -152,6 +153,32 @@ export class DifficultyModal {
               </div>
             </div>
 
+            <!-- Speech / Text-to-speech Section -->
+            <div style="background: rgba(0, 243, 255, 0.05); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(0, 243, 255, 0.25);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: #00f3ff; font-weight: 700;">
+                  ${t('settingsSectionSpeech')}
+                </span>
+                <button type="button" id="btn-test-speech" style="
+                  padding: 5px 12px; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+                  background: rgba(0, 243, 255, 0.2); border: 1px solid #00f3ff; color: #fff; transition: all 0.15s ease;
+                ">
+                  ${t('speechTestBtn')}
+                </button>
+              </div>
+              <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: rgba(255, 255, 255, 0.03); padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                <input type="checkbox" id="check-speech-enabled" ${s.speechEnabled !== false ? 'checked' : ''} style="margin-top: 3px; accent-color: #00f3ff; width: 18px; height: 18px; cursor: pointer;" />
+                <div>
+                  <span style="font-weight: 700; font-size: 0.85rem; color: #fff; display: block;">
+                    ${t('speechEnabledTitle')}
+                  </span>
+                  <span style="font-size: 0.75rem; color: #8ea1c0; line-height: 1.35; display: block; margin-top: 2px;">
+                    ${t('speechEnabledDesc')}
+                  </span>
+                </div>
+              </label>
+            </div>
+
             <!-- 4. Alien Descent Speed (Adult Control) -->
             <div style="background: rgba(255, 183, 0, 0.06); padding: 14px 16px; border-radius: 12px; border: 1px solid rgba(255, 183, 0, 0.25);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -283,6 +310,11 @@ export class DifficultyModal {
       });
     });
 
+    // Speech Voice Test
+    this.container.querySelector('#btn-test-speech')?.addEventListener('click', () => {
+      speechEngine.speakTest();
+    });
+
     // Grade preset buttons
     this.container.querySelectorAll('.grade-preset-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -290,11 +322,13 @@ export class DifficultyModal {
         this.selectedGrade = grade;
         const currentMode = (this.container.querySelector('input[name="answer-mode"]:checked') as HTMLInputElement)?.value as 'manual' | 'multiple_choice' || this.profile.mathSettings.answerMode;
         const currentSpeed = parseFloat((this.container.querySelector('#slider-descent-speed') as HTMLInputElement)?.value) || this.profile.mathSettings.descentSpeedMultiplier || 1.0;
+        const currentSpeech = (this.container.querySelector('#check-speech-enabled') as HTMLInputElement)?.checked ?? (this.profile.mathSettings.speechEnabled ?? true);
         
         this.profile.gradeLevel = grade;
         this.profile.mathSettings = getDefaultMathSettingsForGrade(grade);
         this.profile.mathSettings.answerMode = currentMode;
         this.profile.mathSettings.descentSpeedMultiplier = currentSpeed;
+        this.profile.mathSettings.speechEnabled = currentSpeech;
         this.show(); // re-render with new grade and curriculum description
       });
     });
@@ -311,6 +345,7 @@ export class DifficultyModal {
       const modeRadio = this.container.querySelector('input[name="answer-mode"]:checked') as HTMLInputElement;
       const answerMode: 'manual' | 'multiple_choice' = (modeRadio?.value as any) === 'multiple_choice' ? 'multiple_choice' : 'manual';
       const descentSpeedMultiplier = parseFloat(speedSlider?.value) || 1.0;
+      const speechEnabled = (this.container.querySelector('#check-speech-enabled') as HTMLInputElement)?.checked ?? true;
 
       const newSettings: MathSettings = {
         operations: checkedOps.length > 0 ? checkedOps : ['+'],
@@ -320,9 +355,11 @@ export class DifficultyModal {
         allowNegative: allowNeg,
         grade: this.selectedGrade,
         answerMode,
-        descentSpeedMultiplier
+        descentSpeedMultiplier,
+        speechEnabled
       };
 
+      speechEngine.setEnabled(speechEnabled);
       this.profile.gradeLevel = this.selectedGrade;
       this.profile.mathSettings = newSettings;
       updateActiveProfile(this.profile);

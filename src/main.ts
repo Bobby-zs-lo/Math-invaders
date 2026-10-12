@@ -8,6 +8,7 @@ import { HangarModal } from './ui/HangarModal';
 import { ParentReportModal } from './ui/ParentReportModal';
 import { VictoryDefeatModal } from './ui/VictoryDefeatModal';
 import { getLanguage, setLanguage, onLanguageChange, t } from './i18n/translations';
+import { speechEngine } from './engine/SpeechEngine.ts';
 
 class MathInvadersApp {
   public profile: PlayerProfile | null = null;
@@ -32,6 +33,7 @@ class MathInvadersApp {
   private headerCoins: HTMLElement;
   private headerDiamonds: HTMLElement;
   private btnAudio: HTMLButtonElement;
+  private btnSpeech: HTMLButtonElement;
 
   // Game HUD UI
   private hudLives: HTMLElement;
@@ -93,6 +95,7 @@ class MathInvadersApp {
     this.headerCoins = document.getElementById('header-coins')!;
     this.headerDiamonds = document.getElementById('header-diamonds')!;
     this.btnAudio = document.getElementById('btn-audio-toggle') as HTMLButtonElement;
+    this.btnSpeech = document.getElementById('btn-speech-toggle') as HTMLButtonElement;
 
     // Game HUD UI
     this.hudLives = document.getElementById('hud-lives')!;
@@ -166,6 +169,9 @@ class MathInvadersApp {
   private initProfileSession(prof: PlayerProfile): void {
     this.modalsRoot.innerHTML = '';
     this.profile = prof;
+    if (this.profile?.mathSettings?.speechEnabled !== undefined) {
+      speechEngine.setEnabled(this.profile.mathSettings.speechEnabled);
+    }
     this.updateHeaderUI();
 
     this.profileSelectView.classList.add('hidden');
@@ -174,6 +180,9 @@ class MathInvadersApp {
 
     this.difficultyModal = new DifficultyModal(this.modalsRoot, this.profile, (updated) => {
       this.profile = updated;
+      if (updated.mathSettings?.speechEnabled !== undefined) {
+        speechEngine.setEnabled(updated.mathSettings.speechEnabled);
+      }
       this.updateHeaderUI();
       if (this.gameEngine) {
         this.gameEngine.updateProfile(updated);
@@ -222,6 +231,8 @@ class MathInvadersApp {
 
     const btnReport = document.getElementById('btn-parent-report');
     if (btnReport) btnReport.textContent = t('reportBtn');
+
+    if (this.btnSpeech) this.btnSpeech.title = t('speechToggleTitle');
 
     // Header Grade & Info
     this.updateHeaderUI();
@@ -310,6 +321,8 @@ class MathInvadersApp {
     this.headerCoins.textContent = String(this.profile.coins);
     this.headerDiamonds.textContent = String(this.profile.diamonds);
     this.btnAudio.textContent = soundEngine.getIsMuted() ? '🔇' : '🔊';
+    this.btnSpeech.textContent = speechEngine.isEnabled() ? '🗣️' : '🔇';
+    this.btnSpeech.title = t('speechToggleTitle');
   }
 
   private renderStarMap(): void {
@@ -408,6 +421,7 @@ class MathInvadersApp {
         });
 
         this.renderAnswerInputControls(options);
+        speechEngine.speakProblem(question);
       },
 
       onHudUpdate: (score, lives, progress, tier, solved, req) => {
@@ -543,6 +557,18 @@ class MathInvadersApp {
       this.btnAudio.textContent = soundEngine.getIsMuted() ? '🔇' : '🔊';
     });
 
+    this.btnSpeech.addEventListener('click', () => {
+      const enabled = speechEngine.toggle();
+      this.btnSpeech.textContent = enabled ? '🗣️' : '🔇';
+      if (this.profile && this.profile.mathSettings) {
+        this.profile.mathSettings.speechEnabled = enabled;
+        updateActiveProfile(this.profile);
+      }
+      if (enabled) {
+        speechEngine.speakTest();
+      }
+    });
+
     document.getElementById('btn-hangar')?.addEventListener('click', () => {
       if (this.hangarModal) this.hangarModal.show();
     });
@@ -654,6 +680,7 @@ class MathInvadersApp {
           if (this.currentInput.length < 6) {
             this.currentInput += val;
             this.updateMathInputDisplay();
+            speechEngine.speak(val, { priority: true, rate: 1.1 });
           }
         } else if (act === 'neg') {
           this.toggleMathNegative();
@@ -721,6 +748,7 @@ class MathInvadersApp {
           if (this.currentInput.length < 6) {
             this.currentInput += numpadVal;
             this.updateMathInputDisplay();
+            speechEngine.speak(numpadVal, { priority: true, rate: 1.1 });
           }
           return;
         }
@@ -732,6 +760,7 @@ class MathInvadersApp {
             if (this.currentInput.length < 6) {
               this.currentInput += e.key;
               this.updateMathInputDisplay();
+              speechEngine.speak(e.key, { priority: true, rate: 1.1 });
             }
             return;
           } else {
@@ -743,6 +772,7 @@ class MathInvadersApp {
               if (this.currentInput.length < 6) {
                 this.currentInput += e.key;
                 this.updateMathInputDisplay();
+                speechEngine.speak(e.key, { priority: true, rate: 1.1 });
               }
               return;
             } else {
@@ -771,6 +801,7 @@ class MathInvadersApp {
           if (this.currentInput.length < 6) {
             this.currentInput += e.key;
             this.updateMathInputDisplay();
+            speechEngine.speak(e.key, { priority: true, rate: 1.1 });
           }
         } else if (e.key === 'Backspace') {
           this.currentInput = this.currentInput.slice(0, -1);
@@ -862,6 +893,7 @@ class MathInvadersApp {
     if (isNaN(val)) return;
 
     const correct = this.gameEngine.submitMathAnswer(val);
+    speechEngine.speakFeedback(val, correct);
 
     if (correct) {
       this.mathFeedback.textContent = t('correctAnswer');
@@ -890,6 +922,7 @@ class MathInvadersApp {
     if (isNaN(val)) return;
 
     const result = this.gameEngine.submitUpgradeAnswer(val);
+    speechEngine.speakFeedback(val, result.success);
     const isDa = getLanguage() === 'da';
 
     if (result.success) {
@@ -920,6 +953,7 @@ class MathInvadersApp {
     this.updateMathInputDisplay();
 
     const correct = this.gameEngine.submitMathAnswer(val);
+    speechEngine.speakFeedback(val, correct);
 
     if (correct) {
       this.mathFeedback.textContent = t('correctAnswer');
@@ -947,6 +981,7 @@ class MathInvadersApp {
     this.updateUpgradeInputDisplay();
 
     const result = this.gameEngine.submitUpgradeAnswer(val);
+    speechEngine.speakFeedback(val, result.success);
     const isDa = getLanguage() === 'da';
 
     if (result.success) {

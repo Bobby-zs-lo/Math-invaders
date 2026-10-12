@@ -83,7 +83,22 @@ An educational, retro arcade-style math game heavily inspired by *Space Invaders
 - **HUD Z-Index Hierarchy & Mobile Layout:** `#game-hud` is assigned `z-index: 35`, and the mobile drawer is positioned at `top: 52px; height: calc(100% - 52px)` with `backdrop-filter: blur(4px)`. Both the HUD toggle button (`#btn-toggle-upgrade-panel`) and drawer minimize button (`#btn-minimize-upgrade`) remain distinct, accessible, and clickable with zero touch interception.
 - **Dedicated Live Capacitor Mini-Numpad:** Features 10 numeric buttons, backspace, and submit key for rapid problem solving between alien waves.
 
-### 5. Ship Upgrade Visual Tiers (Tier 1–4) & Procedural Sprites
+### 5. Oplæsning af regnestykker (Read Aloud / Text-to-Speech)
+- **Automatisk oplæsning:** Hver gang en ny regneopgave præsenteres i en forsvarsbane, læses stykket automatisk højt på det valgte sprog (dansk eller engelsk).
+- **Naturlig matematisk udtale:**
+  - **Dansk:** $4 + 5 =$ udtales som *"4 plus 5?"*, $12 - 7 =$ som *"12 minus 7?"*, $6 \times 8 =$ som *"6 gange 8?"*, $24 \div 4 =$ som *"24 divideret med 4?"*, $1/2 \text{ af } 16 =$ som *"en halv af 16?"*, $25\% \text{ af } 80 =$ som *"25 procent af 80?"*, samt ligninger som *"Find x. 3 x plus 5 = 20?"*.
+  - **Engelsk:** $4 + 5 =$ udtales som *"What is 4 plus 5?"*, $7 \times 8 =$ som *"What is 7 times 8?"*, $30 / 5 =$ som *"What is 30 divided by 5?"*.
+- **Højtlæsning af valgt facit og øjeblikkelig feedback:**
+  - Når et tal indtastes på tastaturet eller en svarmulighed vælges i svarmuligheds-tilstand, læses tallet højt.
+  - Ved indsendelse gives der klar mundtlig bekræftelse:
+    - Rigtigt: *"9. Rigtigt!"* (eller *"9. Correct! Well done!"*).
+    - Forkert: *"7. Forkert, prøv igen!"* (eller *"7. Incorrect, try again!"*).
+- **Kontrol & Tilgængelighed:**
+  - Hurtig-knap `🗣️ / 🔇` i topbjælken giver mulighed for lynhurtigt at slå oplæsning til og fra.
+  - Dedikeret sektion i indstillingsmenuen med afkrydsningsfelt samt en **"🔊 Prøv oplæsning"** testknap.
+  - **Native Browser API:** Bygget med standard browser `window.speechSynthesis` og stemmeudvælgelse (`da-DK` / `en-US`), fuldstændig uden eksterne serverkald eller tunge tredjepartsbiblioteker.
+
+### 6. Ship Upgrade Visual Tiers (Tier 1–4) & Procedural Sprites
 Consistent tier progression and visual transformations across both in-stage upgrades and the Hangar shop:
 - **Tier 1 (Starter Scout):** White aerodynamic fuselage, glowing cyan cockpit canopy, and red wingtips with linear laser blasters.
 - **Tier 2 (Dual-Wing Hunter):** Extended swept composite wings, wingtip blasters, and yellow V-spread lasers (unlocked after 1 upgrade solve or 200 coins in Hangar).
