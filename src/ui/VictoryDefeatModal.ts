@@ -1,3 +1,5 @@
+import { t } from '../i18n/translations';
+
 export class VictoryDefeatModal {
   private container: HTMLElement;
 
@@ -23,17 +25,17 @@ export class VictoryDefeatModal {
       <div class="modal-overlay">
         <div class="modal-card" style="text-align: center; border-color: #00ff66; box-shadow: 0 0 35px rgba(0,255,102,0.4);">
           <div class="modal-header" style="justify-content: center;">
-            <span class="modal-title" style="color: #00ff66;">🎉 SECTOR DEFENDED!</span>
+            <span class="modal-title" style="color: #00ff66;">${t('victoryTitle')}</span>
           </div>
           <div class="modal-body" style="align-items: center; gap: 14px;">
             <div style="font-size: 2.2rem; filter: drop-shadow(0 0 10px #ffe600);">${starStr}</div>
             
             <div style="font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #fff;">
-              Sector ${options.sector} — Stage ${options.stage} Cleared!
+              ${t('victoryDesc', { sector: options.sector, stage: options.stage })}
             </div>
 
             <div style="font-family: var(--font-numbers); font-size: 1.15rem; font-weight: 800; color: #ffe600; font-variant-numeric: tabular-nums;">
-              SCORE: ${options.score}
+              ${t('scoreEarned', { score: options.score })}
             </div>
 
             <!-- Rewards Box -->
@@ -47,8 +49,8 @@ export class VictoryDefeatModal {
             </div>
           </div>
           <div class="modal-footer" style="justify-content: center; gap: 12px;">
-            <button id="btn-victory-map" class="secondary-btn">Cosmic Map 🗺️</button>
-            <button id="btn-victory-next" class="primary-btn">Next Stage 🚀</button>
+            <button id="btn-victory-map" class="secondary-btn">${t('returnMapBtn')}</button>
+            <button id="btn-victory-next" class="primary-btn">${t('nextStageBtn')}</button>
           </div>
         </div>
       </div>
@@ -75,20 +77,20 @@ export class VictoryDefeatModal {
       <div class="modal-overlay">
         <div class="modal-card" style="text-align: center; border-color: #ff3344; box-shadow: 0 0 35px rgba(255,51,68,0.4);">
           <div class="modal-header" style="justify-content: center;">
-            <span class="modal-title" style="color: #ff3344;">💥 DEFENSE LINE BREACHED</span>
+            <span class="modal-title" style="color: #ff3344;">${t('defeatTitle')}</span>
           </div>
           <div class="modal-body" style="align-items: center; gap: 14px;">
             <div style="font-size: 2.5rem;">🛸💥</div>
             <div style="font-size: 1.05rem; color: #fff;">
-              Aliens broke through your defense line!
+              ${t('defeatDesc')}
             </div>
             <p style="font-size: 0.85rem; color: #8ea1c0; max-width: 320px;">
-              Don't give up! Every heroic pilot gets stronger with practice. Let's try again!
+              ${t('defeatEncourage')}
             </p>
           </div>
           <div class="modal-footer" style="justify-content: center; gap: 12px;">
-            <button id="btn-gameover-map" class="secondary-btn">Star Map 🗺️</button>
-            <button id="btn-gameover-retry" class="primary-btn" style="background: linear-gradient(135deg, #ff3344, #ff9100);">Retry Mission 🔄</button>
+            <button id="btn-gameover-map" class="secondary-btn">${t('returnMapBtn')}</button>
+            <button id="btn-gameover-retry" class="primary-btn" style="background: linear-gradient(135deg, #ff3344, #ff9100);">${t('retryBtn')}</button>
           </div>
         </div>
       </div>

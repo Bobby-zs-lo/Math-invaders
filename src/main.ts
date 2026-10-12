@@ -7,6 +7,7 @@ import { DifficultyModal } from './ui/DifficultyModal';
 import { HangarModal } from './ui/HangarModal';
 import { ParentReportModal } from './ui/ParentReportModal';
 import { VictoryDefeatModal } from './ui/VictoryDefeatModal';
+import { getLanguage, setLanguage, onLanguageChange, t } from './i18n/translations';
 
 class MathInvadersApp {
   public profile: PlayerProfile | null = null;
@@ -129,6 +130,8 @@ class MathInvadersApp {
     this.victoryModal = new VictoryDefeatModal(this.modalsRoot);
 
     this.setupEventListeners();
+    onLanguageChange(() => this.applyLanguage());
+    this.applyLanguage();
 
     // Check if an existing profile is active
     this.profile = getActiveProfile();
@@ -199,11 +202,111 @@ class MathInvadersApp {
     this.renderStarMap();
   }
 
+  public applyLanguage(): void {
+    const isDa = getLanguage() === 'da';
+    document.documentElement.lang = getLanguage();
+    document.title = t('appTitle');
+
+    // Header buttons
+    const btnLang = document.getElementById('btn-lang-toggle');
+    if (btnLang) btnLang.textContent = t('langToggle');
+
+    const btnProfiles = document.getElementById('btn-switch-profile');
+    if (btnProfiles) btnProfiles.textContent = t('profilesBtn');
+
+    const btnSettings = document.getElementById('btn-settings');
+    if (btnSettings) btnSettings.textContent = t('settingsBtn');
+
+    const btnHangar = document.getElementById('btn-hangar');
+    if (btnHangar) btnHangar.textContent = t('hangarBtn');
+
+    const btnReport = document.getElementById('btn-parent-report');
+    if (btnReport) btnReport.textContent = t('reportBtn');
+
+    // Header Grade & Info
+    this.updateHeaderUI();
+
+    // In-game HUD
+    const hudScoreLabel = document.querySelector('.score-display .hud-label');
+    if (hudScoreLabel) hudScoreLabel.textContent = t('scoreLabel');
+
+    if (!this.gameArenaView.classList.contains('hidden')) {
+      this.hudStageName.textContent = t('sectorStage', { sector: this.currentSector, stage: this.currentStage });
+
+      const currentShipLane = this.gameEngine ? this.gameEngine.state.playerLane : 2;
+      const targetLane = this.gameEngine ? this.gameEngine.state.selectedLane : 2;
+      const isShipLane = currentShipLane === targetLane;
+      this.mathLaneTag.textContent = isShipLane
+        ? t('laneShipHere', { lane: targetLane + 1 })
+        : t('laneSolveToMove', { lane: targetLane + 1 });
+    }
+
+    // Lane Buttons & Click Overlay Labels
+    this.laneButtons.forEach((btn, idx) => {
+      const spans = btn.querySelectorAll('span');
+      if (spans.length >= 2) {
+        spans[1].textContent = `${isDa ? 'BANE' : 'LANE'} ${idx + 1}`;
+      }
+    });
+    this.laneClickCols.forEach((col, idx) => {
+      const span = col.querySelector('span');
+      if (span) span.textContent = `${isDa ? 'BANE' : 'LANE'} ${idx + 1}`;
+    });
+
+    // Virtual Numpad Action Buttons
+    const clearKey = document.querySelector('.clear-key');
+    if (clearKey) clearKey.textContent = t('btnDel');
+    const submitKey = document.querySelector('.submit-key');
+    if (submitKey) submitKey.textContent = isDa ? 'AFFYR 🚀' : 'FIRE 🚀';
+
+    // Upgrade drawer labels
+    const drawerTitle = document.querySelector('.drawer-title');
+    if (drawerTitle) drawerTitle.textContent = t('upgradeDrawerTitle');
+    const upgInst = document.querySelector('.upg-inst');
+    if (upgInst) upgInst.textContent = isDa ? 'Løs når du har et ledigt sekund:' : 'Solve when you have a spare second:';
+    const upgSubmit = document.getElementById('btn-upg-submit');
+    if (upgSubmit) upgSubmit.textContent = `⚡ ${isDa ? 'OPGRADÉR' : 'UPGRADE'}`;
+    const upgClear = document.getElementById('btn-upg-clear');
+    if (upgClear) upgClear.textContent = t('btnDel');
+
+    // Adult Speed flyout
+    const speedTitle = document.querySelector('.speed-panel-title');
+    if (speedTitle) speedTitle.textContent = t('speedPanelTitle');
+    const speedMultiplierLabel = document.querySelector('.speed-display-row .speed-label');
+    if (speedMultiplierLabel) speedMultiplierLabel.textContent = t('speedMultiplierLabel');
+
+    // Pause Modal
+    const pauseTitle = document.querySelector('.pause-title');
+    if (pauseTitle) pauseTitle.textContent = t('pauseTitle');
+    const pauseDesc = document.querySelector('.pause-desc');
+    if (pauseDesc) pauseDesc.textContent = isDa
+      ? 'Tag en pause! Voksne kan justere rumvæsnernes hastighed her:'
+      : 'Take a break! Adults can adjust the alien descent speed here:';
+    const pauseResume = document.getElementById('btn-resume-game');
+    if (pauseResume) pauseResume.textContent = isDa ? '▶️ FORTSÆT SPILLET' : '▶️ RESUME GAME';
+    const pauseMap = document.getElementById('btn-pause-return-map');
+    if (pauseMap) pauseMap.textContent = isDa ? '🗺️ GÅ TIL RUMKORTET' : '🗺️ RETURN TO MAP';
+
+    // Map button on combat HUD
+    const exitMapBtn = document.getElementById('btn-exit-to-map');
+    if (exitMapBtn) exitMapBtn.textContent = t('mapBtn');
+
+    // If Star Map is visible, re-render it
+    if (!this.starMapView.classList.contains('hidden') && this.profile) {
+      this.renderStarMap();
+    }
+
+    // If Profile Gateway is visible, re-render it
+    if (!this.profileSelectView.classList.contains('hidden')) {
+      this.profileModal.renderGateway(this.profileSelectMount);
+    }
+  }
+
   private updateHeaderUI(): void {
     if (!this.profile) return;
     this.headerAvatar.textContent = this.profile.avatar;
     this.headerName.textContent = this.profile.name;
-    this.headerGrade.textContent = `Grade ${this.profile.gradeLevel}`;
+    this.headerGrade.textContent = t('gradeBadge', { grade: this.profile.gradeLevel });
     this.headerCoins.textContent = String(this.profile.coins);
     this.headerDiamonds.textContent = String(this.profile.diamonds);
     this.btnAudio.textContent = soundEngine.getIsMuted() ? '🔇' : '🔊';
@@ -225,7 +328,7 @@ class MathInvadersApp {
     this.updateMathInputDisplay();
     this.updateUpgradeInputDisplay();
 
-    this.hudStageName.textContent = `SECTOR ${sector} — STAGE ${stage}`;
+    this.hudStageName.textContent = t('sectorStage', { sector, stage });
     this.starMapView.classList.add('hidden');
     this.profileSelectView.classList.add('hidden');
     this.gameArenaView.classList.remove('hidden');
@@ -283,8 +386,8 @@ class MathInvadersApp {
         const currentShipLane = this.gameEngine ? this.gameEngine.state.playerLane : 2;
         const isShipLane = currentShipLane === lane;
         this.mathLaneTag.textContent = isShipLane
-          ? `TARGET: LANE ${lane + 1} (SHIP HERE 🚀)`
-          : `TARGET: LANE ${lane + 1} (SOLVE TO MOVE)`;
+          ? t('laneShipHere', { lane: lane + 1 })
+          : t('laneSolveToMove', { lane: lane + 1 });
         this.mathQuestion.textContent = question;
         this.currentInput = '';
         this.updateMathInputDisplay();
@@ -314,19 +417,32 @@ class MathInvadersApp {
 
         const txt = this.btnToggleUpgrade.querySelector('.upgrade-txt');
         if (txt) {
-          txt.textContent = tier >= 4 ? 'MAX POWER ⚡' : `UPGRADE (${solved}/${req})`;
+          txt.textContent = tier >= 4 ? t('upgradeMaxPower') : t('upgradeBtn', { solved, req });
         }
       },
 
       onUpgradeStatusUpdate: (tier, solved, req, prob) => {
-        const tierNames = [
+        const isDa = getLanguage() === 'da';
+        const tierNames = isDa ? [
+          '',
+          t('tier1Name'),
+          t('tier2Name'),
+          t('tier3Name'),
+          t('tier4Name')
+        ] : [
           '',
           'Tier 1: Starter Scout',
           'Tier 2: Dual-Wing Hunter',
           'Tier 3: Plasma Cruiser',
           'Tier 4: Neon Flagship'
         ];
-        const nextTierNames = [
+        const nextTierNames = isDa ? [
+          '',
+          t('nextTier2Desc'),
+          t('nextTier3Desc'),
+          t('nextTier4Desc'),
+          t('maxTierReached')
+        ] : [
           '',
           'Next: Dual-Wing Hunter (Dual Blasters + V-Spread)',
           'Next: Plasma Cruiser (Piercing Plasma Beams)',
@@ -339,12 +455,12 @@ class MathInvadersApp {
 
         const pct = req > 0 ? (solved / req) * 100 : 100;
         this.sideUpgradeProgressFill.style.width = `${pct}%`;
-        this.sideUpgradeCaption.textContent = tier >= 4 ? 'Maxed Out!' : `${solved} / ${req} Problems Solved`;
+        this.sideUpgradeCaption.textContent = tier >= 4 ? t('maxedOut') : t('solvedCount', { solved, req });
 
         if (prob && tier < 4) {
           this.sideUpgQuestion.textContent = prob.question;
         } else {
-          this.sideUpgQuestion.textContent = 'MAX TIER! 🌟';
+          this.sideUpgQuestion.textContent = isDa ? 'MAKS NIVEAU! 🌟' : 'MAX TIER! 🌟';
         }
         this.currentUpgradeInput = '';
         this.updateUpgradeInputDisplay();
@@ -390,9 +506,36 @@ class MathInvadersApp {
       this.profileModal.showModal();
     });
 
+    const openSettings = () => {
+      if (!this.profile) return;
+      if (!this.difficultyModal) {
+        this.difficultyModal = new DifficultyModal(this.modalsRoot, this.profile, (updated) => {
+          this.profile = updated;
+          this.updateHeaderUI();
+          if (this.gameEngine) {
+            this.gameEngine.updateProfile(updated);
+            const activeProb = this.gameEngine.getActiveMathProblem();
+            if (activeProb) {
+              this.renderAnswerInputControls(activeProb.options);
+            }
+            const activeUpgProb = this.gameEngine.getActiveUpgradeProblem();
+            this.renderUpgradeAnswerInputControls(this.gameEngine.state.inStageUpgradeTier, activeUpgProb);
+          }
+        });
+      }
+      this.difficultyModal.show();
+    };
+
+    document.getElementById('btn-settings')?.addEventListener('click', openSettings);
+
+    document.getElementById('btn-lang-toggle')?.addEventListener('click', () => {
+      const nextLang = getLanguage() === 'da' ? 'en' : 'da';
+      setLanguage(nextLang);
+    });
+
     document.getElementById('header-grade-tag')?.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (this.difficultyModal) this.difficultyModal.show();
+      openSettings();
     });
 
     this.btnAudio.addEventListener('click', () => {
@@ -721,10 +864,10 @@ class MathInvadersApp {
     const correct = this.gameEngine.submitMathAnswer(val);
 
     if (correct) {
-      this.mathFeedback.textContent = 'EXCELLENT! 🚀';
+      this.mathFeedback.textContent = t('correctAnswer');
       this.mathFeedback.className = 'feedback-msg correct';
     } else {
-      this.mathFeedback.textContent = 'WRONG! JAMMED!';
+      this.mathFeedback.textContent = t('weaponJammed');
       this.mathFeedback.className = 'feedback-msg wrong';
     }
 
@@ -747,12 +890,15 @@ class MathInvadersApp {
     if (isNaN(val)) return;
 
     const result = this.gameEngine.submitUpgradeAnswer(val);
+    const isDa = getLanguage() === 'da';
 
     if (result.success) {
-      this.sideUpgFeedback.textContent = result.tierChanged ? '⚡ NEW SHIP TIER UNLOCKED!' : '⚡ POWER CHARGED!';
+      this.sideUpgFeedback.textContent = result.tierChanged
+        ? (isDa ? '⚡ NYT SKIBSNIVEAU LÅST OP!' : '⚡ NEW SHIP TIER UNLOCKED!')
+        : (isDa ? '⚡ SKIBSENERGI OPLADT!' : '⚡ POWER CHARGED!');
       this.sideUpgFeedback.style.color = '#00ff66';
     } else {
-      this.sideUpgFeedback.textContent = '❌ CALCULATION ERROR!';
+      this.sideUpgFeedback.textContent = isDa ? '❌ REGNEFEJL!' : '❌ CALCULATION ERROR!';
       this.sideUpgFeedback.style.color = '#ff3344';
     }
 
@@ -776,10 +922,10 @@ class MathInvadersApp {
     const correct = this.gameEngine.submitMathAnswer(val);
 
     if (correct) {
-      this.mathFeedback.textContent = 'EXCELLENT! 🚀';
+      this.mathFeedback.textContent = t('correctAnswer');
       this.mathFeedback.className = 'feedback-msg correct';
     } else {
-      this.mathFeedback.textContent = 'WRONG! JAMMED!';
+      this.mathFeedback.textContent = t('weaponJammed');
       this.mathFeedback.className = 'feedback-msg wrong';
     }
 
@@ -801,12 +947,15 @@ class MathInvadersApp {
     this.updateUpgradeInputDisplay();
 
     const result = this.gameEngine.submitUpgradeAnswer(val);
+    const isDa = getLanguage() === 'da';
 
     if (result.success) {
-      this.sideUpgFeedback.textContent = result.tierChanged ? '⚡ NEW SHIP TIER UNLOCKED!' : '⚡ POWER CHARGED!';
+      this.sideUpgFeedback.textContent = result.tierChanged
+        ? (isDa ? '⚡ NYT SKIBSNIVEAU LÅST OP!' : '⚡ NEW SHIP TIER UNLOCKED!')
+        : (isDa ? '⚡ SKIBSENERGI OPLADT!' : '⚡ POWER CHARGED!');
       this.sideUpgFeedback.style.color = '#00ff66';
     } else {
-      this.sideUpgFeedback.textContent = '❌ CALCULATION ERROR!';
+      this.sideUpgFeedback.textContent = isDa ? '❌ REGNEFEJL!' : '❌ CALCULATION ERROR!';
       this.sideUpgFeedback.style.color = '#ff3344';
     }
 

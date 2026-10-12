@@ -104,6 +104,18 @@ export class GameEngine {
     this.state.inStageUpgradeTier = tier;
     this.state.upgradesSolvedThisTier = 0;
     this.state.upgradesRequiredForNextTier = tier < 4 ? tier : 0;
+
+    // Refresh active math problems if a stage is running so grade changes take effect immediately
+    if (this.state.isRunning) {
+      for (let l = 0; l < 5; l++) {
+        this.state.laneProblems[l] = this.mathEngine.generateProblemForLane(l);
+      }
+      this.activeUpgradeProblem = this.mathEngine.generateUpgradeProblem();
+      const activeProb = this.state.laneProblems[this.state.selectedLane];
+      if (activeProb) {
+        this.onMathProblemUpdate(this.state.selectedLane, activeProb.question, activeProb.options);
+      }
+    }
     this.notifyUpgradeStatus();
   }
 

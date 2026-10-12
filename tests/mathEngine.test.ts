@@ -57,7 +57,8 @@ function verifyEquationTruth(question: string, answer: number): boolean {
       .replace(/√\(\s*(\d+)\*\*2\s*\+\s*(\d+)\*\*2\s*\)/g, 'Math.sqrt($1**2 + $2**2)')
       .replace(/√\s*(\d+)/g, 'Math.sqrt($1)')
       .replace(/√x/g, `Math.sqrt(${answer})`)
-      .replace(/\bof\b/gi, '*');
+      .replace(/(\d+)%\s*(?:of|af|\*)\s*(\d+)/gi, '($1/100)*$2')
+      .replace(/\b(of|af)\b/gi, '*');
 
     // Implicit multiplication: 3x -> 3*(answer), 3( -> 3*(
     clean = clean.replace(/([0-9])x/gi, `$1*(${answer})`);

@@ -52,6 +52,87 @@ export interface PlayerProfile {
   stats: PlayerStats;
 }
 
+export interface GradeCurriculumInfo {
+  grade: number;
+  title: string;
+  shortDesc: string;
+  fullDesc: string;
+  examples: string[];
+}
+
+export const DANISH_GRADE_CURRICULUM: Record<number, GradeCurriculumInfo> = {
+  1: {
+    grade: 1,
+    title: '1. klasse (Begynder)',
+    shortDesc: '10\'er-venner, plus og minus inden for 0–20.',
+    fullDesc: 'Fokus på talforståelse, 10\'er-venner (f.eks. 3 + 7 = 10) og enkle plus/minus stykker op til 20.',
+    examples: ['3 + 7 = 10', '4 + 5 = 9', '10 - 4 = 6', '12 + 3 = 15']
+  },
+  2: {
+    grade: 2,
+    title: '2. klasse (Indskoling)',
+    shortDesc: 'Plus og minus op til 100, 2-, 5- og 10-tabellen.',
+    fullDesc: 'Regning med to-cifrede tal, tierovergange samt de første gangetabeller (2-, 5- og 10-tabellen).',
+    examples: ['24 + 15 = 39', '50 - 18 = 32', '2 × 7 = 14', '5 × 6 = 30']
+  },
+  3: {
+    grade: 3,
+    title: '3. klasse (Den lille tabel)',
+    shortDesc: 'Den lille tabel (1-10), division uden rest, tal op til 500.',
+    fullDesc: 'Rutine i alle gangetabeller fra 1 til 10, division som omvendt gange samt regning med større tal.',
+    examples: ['6 × 7 = 42', '8 × 9 = 72', '36 : 6 = 6', '56 : 8 = 7']
+  },
+  4: {
+    grade: 4,
+    title: '4. klasse (Mellemtrin)',
+    shortDesc: 'Regnehierarki, stambrøker, store gangestykker, x-ligninger.',
+    fullDesc: 'Regnearternes rækkefølge (gange/dividere før plus/minus), brøker af tal og enkle ligninger.',
+    examples: ['5 + 3 × 4 = 17', '30 - 12 : 3 = 26', '1/2 af 60 = 30', 'x + 15 = 40']
+  },
+  5: {
+    grade: 5,
+    title: '5. klasse (Brøker & procenter)',
+    shortDesc: 'Procent, brøker, parenteser, decimaltal, lineære udtryk.',
+    fullDesc: 'Enkel procentregning (10%, 25%, 50%), parentesregneregler, regning med decimaltal og ligninger.',
+    examples: ['10% af 250 = 25', '25% af 80 = 20', '(15 + 5) × 4 = 80', '2x + 10 = 34']
+  },
+  6: {
+    grade: 6,
+    title: '6. klasse (Negative tal)',
+    shortDesc: 'Negative tal, fortegnsregneregler, sammensatte ligninger.',
+    fullDesc: 'Regning med minustal (plus, minus, gange, division med fortegn) og ligninger med to led.',
+    examples: ['5 - 14 = -9', '-8 + 3 = -5', '4 × (-6) = -24', '(-3) × (-5) = 15']
+  },
+  7: {
+    grade: 7,
+    title: '7. klasse (Udskoling & potenser)',
+    shortDesc: 'Potenser, kvadratrødder, lineære ligninger med parenteser.',
+    fullDesc: 'Potensregning (f.eks. 3² = 9, 2⁴ = 16), rødder (√81 = 9) og ligningsløsning med reduktion.',
+    examples: ['3x + 8 = 29', '4² = 16', '√144 = 12', '2(x + 5) = 24']
+  },
+  8: {
+    grade: 8,
+    title: '8. klasse (To ligninger & geometri)',
+    shortDesc: 'x på begge sider, Pythagoras, 2 ligninger med 2 ubekendte.',
+    fullDesc: 'Ligninger med ubekendte på begge sider, Pythagoras\' sætning (a² + b² = c²) og potensregneregler.',
+    examples: ['5x + 4 = 2x + 19', '√(3² + 4²) = 5', 'x + y = 16, x - y = 4', '2³ × 2⁴ = 2ˣ']
+  },
+  9: {
+    grade: 9,
+    title: '9. klasse (Afgangsklasse)',
+    shortDesc: 'Andengradsligninger, brøkligninger, moms og vækst.',
+    fullDesc: 'Andengradsligninger med hele rødder, brøker i ligninger, procentvis stigning/moms og avancerede rødder.',
+    examples: ['x² - 25 = 0 (x > 0)', 'x² - 7x + 12 = 0', '200 kr. + 25% moms', '(2x + 8)/2 = 10']
+  },
+  10: {
+    grade: 10,
+    title: '10. klasse (Videregående udskoling)',
+    shortDesc: 'Avancerede andengradsligninger, funktioner, eksponenter.',
+    fullDesc: 'Videregående algebra, funktionsværdier f(x), komplekse ligningssystemer og eksponentielle ligninger.',
+    examples: ['2x² - 32 = 0', 'f(3) i 2x² - 4x + 3', '2ˣ⁺² = 32', '3(x - 2) + 2x = 19']
+  }
+};
+
 const STORAGE_KEY = 'math_invaders_profiles_v1';
 const ACTIVE_PROFILE_KEY = 'math_invaders_active_profile_id';
 

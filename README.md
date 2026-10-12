@@ -6,6 +6,25 @@ An educational, retro arcade-style math game heavily inspired by *Space Invaders
 
 ---
 
+## 🌐 Sprog & Dansk Læreplan (Danish Curriculum & Dual-Language)
+
+- **Altid standard på dansk:** Spillet starter altid som standard på dansk (`da`) med fuld oversættelse af alle tekster, opgaver, menuer og vejledninger.
+- **Sprogskifter (Dansk / Engelsk):** Hurtig skift mellem dansk (`🇩🇰 DA`) og engelsk (`🇬🇧 EN`) via knappen i topbjælken eller direkte i indstillingsmenuen.
+- **Tilpasset Børne- og Undervisningsministeriets Fælles Mål (1. – 10. klasse):**
+  - **1. klasse (Talforståelse & 10'er-venner):** Addition og subtraktion inden for 10 og 20 ($7 + 3 = 10$, $9 - 4 = 5$). Kun ikke-negative tal.
+  - **2. klasse (Tierovergange & Små tabeller):** Plus og minus op til 100 med tierovergange, 2-, 5- og 10-tabellerne ($15 + 8 = 23$, $40 - 15 = 25$, $5 \times 4 = 20$).
+  - **3. klasse (Den lille tabel & Division uden rest):** Den fulde lille tabel (1–10 tabellerne) samt division uden rest (`:`) op til 100 ($7 \times 8 = 56$, $42 : 6 = 7$).
+  - **4. klasse (Regnearternes hierarki & Stambrøker):** Gange før plus/minus ($5 + 3 \times 4 = 17$), stambrøker af heltal ($1/2 \text{ af } 60 = 30$, $1/4 \text{ af } 80 = 20$).
+  - **5. klasse (Procenter, Parenteser & Decimaltal):** Procentregning ($25\% \text{ af } 80 = 20$, $10\% \text{ af } 150 = 15$), parenteser ($(12 + 8) \times 3 = 60$), decimaltal med heltalssvar ($3.5 + 6.5 = 10$).
+  - **6. klasse (Negative tal & Fortegnsregler):** Regning under nul ($5 - 14 = -9$, $-8 + 3 = -5$), multiplikation med fortegn ($4 \times (-6) = -24$, $(-3) \times (-5) = 15$).
+  - **7. klasse (Lineære ligninger & Potenser):** Ligninger med ubekendte ($2x + 5 = 19 \Rightarrow x = 7$, $3x - 4 = 17 \Rightarrow x = 7$), potenser og kvadrattal ($4^2 = 16$, $2^4 = 16$).
+  - **8. klasse (Ligninger med x på begge sider & Rødder):** Komplekse ligninger ($3x + 4 = x + 16 \Rightarrow x = 6$), kvadratrødder ($\sqrt{64} = 8$, $\sqrt{100} = 10$).
+  - **9. klasse (Parentesligninger, To ligninger med to ubekendte):** Reduktion og distribution ($2(x + 4) = 22 \Rightarrow x = 7$), ligningssystemer ($x + y = 10, x - y = 4 \Rightarrow x = 7$).
+  - **10. klasse (Andengradsligninger & Pythagoras):** Andengradsligninger med heltalsrødder ($x^2 - 9 = 0 \Rightarrow x = 3$, $(x - 3)(x - 5) = 0$), Pythagoras ($a^2 + b^2 = c^2$, $\sqrt{3^2 + 4^2} = 5$).
+- **Realtids-opdatering:** Når klassetrin eller indstillinger ændres i indstillingsmenuen, genberegnes og opdateres alle aktive baneopgaver og opgraderingsopgaver øjeblikkeligt uden behov for genstart.
+
+---
+
 ## 🎮 Core Gameplay Mechanics
 
 ### 1. Pedagogical Grade 1–10 Curriculum Engine

@@ -116,7 +116,9 @@ async function runMultipleChoiceQC() {
     // Check targeting indicator label
     const tagText = await page.textContent('#math-lane-tag');
     console.log(`   Targeting HUD Tag text: "${tagText}"`);
-    if (!tagText.includes('LANE 1') || !tagText.includes('SOLVE TO MOVE')) {
+    const isLane1 = tagText.includes('LANE 1') || tagText.includes('BANE 1');
+    const isSolveToMove = tagText.includes('SOLVE TO MOVE') || tagText.includes('LØS FOR AT SKIFTE BANE');
+    if (!isLane1 || !isSolveToMove) {
       throw new Error(`Targeting tag must instruct player to solve math: "${tagText}"`);
     }
 
@@ -144,7 +146,9 @@ async function runMultipleChoiceQC() {
     shipLane = await page.evaluate(() => window.app.gameEngine.state.playerLane);
     console.log(`   Feedback after wrong choice: "${wrongFeedback}"`);
     console.log(`   Ship playerLane after wrong choice: ${shipLane}`);
-    if (!wrongFeedback.includes('JAMMED')) throw new Error(`Expected jam feedback on wrong answer, got "${wrongFeedback}"`);
+    if (!wrongFeedback.includes('JAMMED') && !wrongFeedback.includes('BLOKERET') && !wrongFeedback.includes('FEJL')) {
+      throw new Error(`Expected jam feedback on wrong answer, got "${wrongFeedback}"`);
+    }
     if (shipLane !== 2) throw new Error(`Ship moved on wrong answer! Expected lane 2, got ${shipLane}`);
 
     // 6. Submit Correct Answer in Multiple Choice Mode
@@ -163,7 +167,9 @@ async function runMultipleChoiceQC() {
     console.log(`   Ship playerLane after correct choice: ${shipLane}`);
     console.log(`   Ship targetX after correct choice: ${newTargetX}, Lane 0 Center X: ${lane0CenterX}`);
 
-    if (!correctFeedback.includes('EXCELLENT')) throw new Error(`Expected excellent feedback, got "${correctFeedback}"`);
+    if (!correctFeedback.includes('EXCELLENT') && !correctFeedback.includes('RIGTIGT')) {
+      throw new Error(`Expected excellent feedback, got "${correctFeedback}"`);
+    }
     if (shipLane !== 0) throw new Error(`Ship failed to move to Lane 0 after correct answer! Got ${shipLane}`);
     if (newTargetX !== lane0CenterX) throw new Error('Ship playerTargetX must be at Lane 0 center!');
 

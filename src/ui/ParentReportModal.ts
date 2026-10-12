@@ -1,6 +1,7 @@
 import type { PlayerProfile } from '../models/Profile.ts';
 import { getDefaultMathSettingsForGrade } from '../models/Profile.ts';
 import { MathEngine } from '../math/MathEngine.ts';
+import { t, getLanguage } from '../i18n/translations.ts';
 
 export class ParentReportModal {
   private container: HTMLElement;
@@ -15,6 +16,7 @@ export class ParentReportModal {
   }
 
   public show(): void {
+    const isDa = getLanguage() === 'da';
     const stats = this.profile.stats || {
       totalSolved: 0,
       totalCorrect: 0,
@@ -46,7 +48,19 @@ export class ParentReportModal {
       if (h.isCorrect) opStats[op].correct++;
     }
 
-    const opNames: Record<string, string> = {
+    const opNames: Record<string, string> = isDa ? {
+      '+': 'Addition (+)',
+      '-': 'Subtraktion (-)',
+      '*': 'Multiplikation (×)',
+      '/': 'Division (:)',
+      'x': 'Ligninger (Find x)',
+      'multi_step': 'Regnehierarki & flere led',
+      'fractions': 'Brøker & procenter',
+      'exponents': 'Potenser & kvadratrødder',
+      'algebra': 'Lineære ligninger',
+      'quadratics': 'Andengradsligninger',
+      'upgrade': 'Skibs-opgradering'
+    } : {
       '+': 'Addition (+)',
       '-': 'Subtraction (-)',
       '*': 'Multiplication (×)',
@@ -64,24 +78,24 @@ export class ParentReportModal {
       <div class="modal-overlay">
         <div class="modal-card" style="max-width: 650px;">
           <div class="modal-header">
-            <span class="modal-title">📊 Parent Analytics: ${this.profile.name}</span>
+            <span class="modal-title">${t('parentReportTitle', { name: this.profile.name })}</span>
             <button class="modal-close-btn" id="btn-close-report">✕</button>
           </div>
           <div class="modal-body">
             <!-- Summary KPI Cards -->
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
               <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(0, 243, 255, 0.3);">
-                <div style="font-size: 0.75rem; color: #8ea1c0;">PROBLEMS SOLVED</div>
+                <div style="font-size: 0.75rem; color: #8ea1c0;">${t('kpiSolved')}</div>
                 <div style="font-family: var(--font-numbers); font-size: 1.4rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums;">${total}</div>
               </div>
               <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(0, 255, 102, 0.3);">
-                <div style="font-size: 0.75rem; color: #8ea1c0;">ACCURACY</div>
+                <div style="font-size: 0.75rem; color: #8ea1c0;">${t('kpiAccuracy')}</div>
                 <div style="font-family: var(--font-numbers); font-size: 1.4rem; font-weight: 800; color: #00ff66; font-variant-numeric: tabular-nums;">
                   ${total > 0 ? `${accuracy}%` : '--'}
                 </div>
               </div>
               <div style="background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; text-align: center; border: 1px solid rgba(255, 230, 0, 0.3);">
-                <div style="font-size: 0.75rem; color: #8ea1c0;">AVG RESPONSE</div>
+                <div style="font-size: 0.75rem; color: #8ea1c0;">${t('kpiAvgSpeed')}</div>
                 <div style="font-family: var(--font-numbers); font-size: 1.4rem; font-weight: 800; color: #ffe600; font-variant-numeric: tabular-nums;">
                   ${total > 0 ? `${avgSec}s` : '--'}
                 </div>
@@ -91,10 +105,10 @@ export class ParentReportModal {
             <!-- Operations Breakdown -->
             <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px;">
               <h4 style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #00f3ff; margin-bottom: 8px;">
-                📈 MASTERY BY OPERATION
+                ${t('masteryTitle')}
               </h4>
               <div style="display: flex; flex-direction: column; gap: 6px;">
-                ${Object.keys(opStats).length === 0 ? '<div style="font-size: 0.8rem; color: #8ea1c0;">No problems answered yet. Play a stage to see results!</div>' : ''}
+                ${Object.keys(opStats).length === 0 ? `<div style="font-size: 0.8rem; color: #8ea1c0;">${t('noProblemsSolvedYet')}</div>` : ''}
                 ${Object.entries(opStats).map(([op, s]) => {
                   const pct = Math.round((s.correct / s.total) * 100);
                   return `
@@ -116,7 +130,7 @@ export class ParentReportModal {
             <div style="background: rgba(0,0,0,0.4); padding: 12px; border-radius: 10px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <h4 style="font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: #ff3344; margin: 0;">
-                  🎯 RECENT TROUBLE SPOTS (${missed.length})
+                  ${t('troubleSpotsTitle', { count: missed.length })}
                 </h4>
                 <button id="btn-print-offline" style="
                   background: linear-gradient(135deg, #00f3ff 0%, #0088ff 100%);
@@ -124,16 +138,16 @@ export class ParentReportModal {
                   font-family: 'Orbitron', sans-serif; font-size: 0.72rem; font-weight: 700;
                   cursor: pointer; display: flex; align-items: center; gap: 4px;
                 ">
-                  🖨️ Printable Practice Sheet
+                  ${t('printWorksheetBtn')}
                 </button>
               </div>
 
-              ${missed.length === 0 ? '<div style="font-size: 0.8rem; color: #00ff66;">🌟 Flawless! No recent mistakes recorded.</div>' : `
+              ${missed.length === 0 ? `<div style="font-size: 0.8rem; color: #00ff66;">${t('noTroubleSpots')}</div>` : `
                 <div style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto;">
                   ${missed.map(m => `
                     <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; background: rgba(255,51,68,0.1); padding: 6px 10px; border-radius: 6px; border-left: 3px solid #ff3344;">
                       <span style="font-family: var(--font-numbers); font-size: 0.95rem; font-weight: 700;">${m.question}</span>
-                      <span>Answer: <b style="color: #ff3344;">${m.userAnswer}</b> (Correct: <b style="color: #00ff66;">${m.correctAnswer}</b>)</span>
+                      <span>${t('answerWas', { user: `<b style="color: #ff3344;">${m.userAnswer}</b>`, correct: `<b style="color: #00ff66;">${m.correctAnswer}</b>` })}</span>
                     </div>
                   `).join('')}
                 </div>
@@ -157,13 +171,8 @@ export class ParentReportModal {
     });
   }
 
-  /**
-   * Generates a clean, print-ready offline study worksheet in a pop-up window.
-   * Includes recent missed problems with blank answer boxes, grade-appropriate
-   * bonus practice equations, and an answer key for parents.
-   */
   public generatePrintableWorksheet(missedProblems: any[]): void {
-    // Generate 10 grade-appropriate bonus practice problems
+    const isDa = getLanguage() === 'da';
     const bonusProblems: { question: string; answer: number }[] = [];
     for (let i = 0; i < 10; i++) {
       const prob = this.mathEngine.generateProblemForLane(i % 5);
@@ -172,7 +181,7 @@ export class ParentReportModal {
 
     const printWin = window.open('', '_blank', 'width=800,height=900');
     if (!printWin) {
-      alert('Please allow popups to open the printable practice sheet.');
+      alert(t('allowPopupsAlert'));
       return;
     }
 
@@ -180,9 +189,9 @@ export class ParentReportModal {
 
     const htmlContent = `
       <!DOCTYPE html>
-      <html>
+      <html lang="${isDa ? 'da' : 'en'}">
       <head>
-        <title>Math Invaders — Practice Sheet (${this.profile.name})</title>
+        <title>${t('printWorksheetTitle', { name: this.profile.name })}</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -198,79 +207,74 @@ export class ParentReportModal {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
-            margin-bottom: 24px;
           }
           .problem-card {
-            border: 1px dashed #777;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 18px;
+            font-weight: bold;
           }
           .answer-box {
-            display: inline-block;
-            width: 60px;
-            height: 28px;
-            border: 1px solid #333;
+            width: 70px;
+            height: 32px;
+            border: 2px dashed #999;
             border-radius: 4px;
-            background: #fff;
           }
           .answer-key {
             margin-top: 40px;
-            padding-top: 16px;
-            border-top: 1px dashed #999;
-            page-break-before: auto;
+            border-top: 2px dashed #aaa;
+            padding-top: 14px;
+            font-size: 12px;
+            color: #666;
           }
-          .answer-key h3 { font-size: 14px; color: #555; margin-bottom: 8px; }
-          .answer-key-content { font-size: 12px; color: #444; line-height: 1.6; }
           @media print {
-            body { padding: 0; }
             button { display: none; }
           }
         </style>
       </head>
       <body>
-        <div style="text-align: right;">
-          <button onclick="window.print()" style="padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer; margin-bottom: 12px; background: #0066cc; color: white; border: none; border-radius: 4px;">🖨️ Print Worksheet</button>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <h1>🚀 Math Invaders — ${isDa ? 'Matematik Træningsark' : 'Practice Sheet'}</h1>
+          <button onclick="window.print()" style="padding: 6px 16px; font-size: 14px; cursor: pointer;">
+            🖨️ ${isDa ? 'Udskriv ark' : 'Print Sheet'}
+          </button>
         </div>
-        <h1>Math Invaders: Offline Practice Worksheet</h1>
         <div class="meta">
-          <strong>Pilot:</strong> ${this.profile.name} &nbsp;|&nbsp;
-          <strong>Curriculum Level:</strong> Grade ${this.profile.gradeLevel} &nbsp;|&nbsp;
-          <strong>Date:</strong> ${dateStr}
+          <b>${isDa ? 'Pilot' : 'Pilot'}:</b> ${this.profile.name} &nbsp;|&nbsp;
+          <b>${isDa ? 'Klassetrin' : 'Grade'}:</b> ${isDa ? `${this.profile.gradeLevel}. klasse` : `Grade ${this.profile.gradeLevel}`} &nbsp;|&nbsp;
+          <b>${isDa ? 'Dato' : 'Date'}:</b> ${dateStr}
         </div>
 
         ${missedProblems.length > 0 ? `
-          <div class="section-title">Part 1: Trouble Spots Review (Targeted Practice)</div>
+          <div class="section-title">🎯 ${isDa ? 'Fokusområder (Opgaver til gen-træning)' : 'Trouble Spots (Problems to Re-practice)'}</div>
           <div class="problem-grid">
             ${missedProblems.map((m, idx) => `
               <div class="problem-card">
-                <span><strong>#${idx + 1}.</strong> &nbsp;${m.question}</span>
-                <span class="answer-box"></span>
+                <span>${idx + 1}. &nbsp; ${m.question.replace('=', '').trim()} = </span>
+                <div class="answer-box"></div>
               </div>
             `).join('')}
           </div>
         ` : ''}
 
-        <div class="section-title">Part 2: Grade ${this.profile.gradeLevel} Curriculum Practice Drills</div>
+        <div class="section-title">⭐ ${isDa ? 'Ekstra opgaver til klassetrinnet' : 'Grade Level Practice Equations'}</div>
         <div class="problem-grid">
           ${bonusProblems.map((b, idx) => `
             <div class="problem-card">
-              <span><strong>#${missedProblems.length + idx + 1}.</strong> &nbsp;${b.question}</span>
-              <span class="answer-box"></span>
+              <span>${idx + 1 + missedProblems.length}. &nbsp; ${b.question.replace('=', '').trim()} = </span>
+              <div class="answer-box"></div>
             </div>
           `).join('')}
         </div>
 
         <div class="answer-key">
-          <h3>Parent Answer Key (Fold or cut along line)</h3>
-          <div class="answer-key-content">
-            ${missedProblems.map((m, idx) => `#${idx + 1}: ${m.correctAnswer}`).join(' &nbsp;|&nbsp; ')}
-            ${missedProblems.length > 0 ? ' &nbsp;|&nbsp; ' : ''}
-            ${bonusProblems.map((b, idx) => `#${missedProblems.length + idx + 1}: ${b.answer}`).join(' &nbsp;|&nbsp; ')}
-          </div>
+          <b>${isDa ? 'Facitliste til forældre' : 'Answer Key for Parents'}:</b>
+          ${missedProblems.map((m, idx) => `[${idx + 1}: ${m.correctAnswer}]`).join(' ')}
+          ${bonusProblems.map((b, idx) => `[${idx + 1 + missedProblems.length}: ${b.answer}]`).join(' ')}
         </div>
       </body>
       </html>

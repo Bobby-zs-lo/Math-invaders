@@ -1,5 +1,6 @@
 import type { MathSettings } from '../models/Profile.ts';
 import { getDefaultMathSettingsForGrade } from '../models/Profile.ts';
+import { getLanguage } from '../i18n/translations.ts';
 
 export interface MathProblem {
   id: string;
@@ -13,6 +14,7 @@ export interface MathProblem {
   options?: number[];
   hint?: string;
   isNegativeAllowed?: boolean;
+  promptLabel?: string;
 }
 
 export interface DistractorContext {
@@ -389,22 +391,35 @@ export class MathEngine {
           operation = 'multi_step';
           operands = [a, b, c];
         } else if (pattern === 5) {
-          // Fractions of a whole number yielding integer result
-          const fractions = [
-            { num: 1, den: 2 },
-            { num: 1, den: 3 },
-            { num: 1, den: 4 },
-            { num: 2, den: 3 },
-            { num: 3, den: 4 },
-            { num: 2, den: 5 }
-          ];
-          const frac = fractions[Math.floor(Math.random() * fractions.length)];
-          const k = Math.floor(Math.random() * 10) + 2; // 2 to 11
-          const W = frac.den * k;
-          question = `${frac.num}/${frac.den} of ${W} = `;
-          answer = frac.num * k;
-          operation = 'fractions';
-          operands = [frac.num, frac.den, W];
+          const wordOf = getLanguage() === 'da' ? 'af' : 'of';
+          const isPercent = Math.random() < 0.4;
+          if (isPercent) {
+            const pTypes = [10, 20, 25, 50];
+            const pct = pTypes[Math.floor(Math.random() * pTypes.length)];
+            const factor = 100 / pct;
+            const k = Math.floor(Math.random() * 8) + 2; // 2 to 9
+            const W = factor * k;
+            question = `${pct}% ${wordOf} ${W} = `;
+            answer = k;
+            operation = 'fractions';
+            operands = [pct, 100, W];
+          } else {
+            const fractions = [
+              { num: 1, den: 2 },
+              { num: 1, den: 3 },
+              { num: 1, den: 4 },
+              { num: 2, den: 3 },
+              { num: 3, den: 4 },
+              { num: 2, den: 5 }
+            ];
+            const frac = fractions[Math.floor(Math.random() * fractions.length)];
+            const k = Math.floor(Math.random() * 10) + 2; // 2 to 11
+            const W = frac.den * k;
+            question = `${frac.num}/${frac.den} ${wordOf} ${W} = `;
+            answer = frac.num * k;
+            operation = 'fractions';
+            operands = [frac.num, frac.den, W];
+          }
         } else {
           // Decimals yielding integer result
           const decType = Math.floor(Math.random() * 3);
@@ -778,6 +793,16 @@ export class MathEngine {
       grade
     });
 
+    const isDa = getLanguage() === 'da';
+    let promptLabel = isDa ? 'Løs:' : 'Solve:';
+    if (operation === 'algebra' || operation === 'quadratics') {
+      promptLabel = isDa ? 'Find x:' : 'Solve for x:';
+    } else if (operation === 'fractions') {
+      promptLabel = isDa ? 'Regn ud:' : 'Calculate:';
+    } else if (operation === 'exponents') {
+      promptLabel = isDa ? 'Udregn:' : 'Compute:';
+    }
+
     return {
       id: 'prob_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       laneIndex,
@@ -788,7 +813,8 @@ export class MathEngine {
       startTime: performance.now(),
       grade,
       options,
-      isNegativeAllowed: allowNegative
+      isNegativeAllowed: allowNegative,
+      promptLabel
     };
   }
 

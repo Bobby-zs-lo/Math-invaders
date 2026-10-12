@@ -1,18 +1,19 @@
 import { PlayerProfile } from '../models/Profile';
+import { t } from '../i18n/translations';
 
 export interface SectorInfo {
   id: number;
-  name: string;
-  subtitle: string;
+  nameKey: 'sector1Title' | 'sector2Title' | 'sector3Title' | 'sector4Title' | 'sector5Title';
+  subKey: 'sector1Sub' | 'sector2Sub' | 'sector3Sub' | 'sector4Sub' | 'sector5Sub';
   icon: string;
 }
 
 export const SECTORS: SectorInfo[] = [
-  { id: 1, name: 'Sector 1: Moon Base Alpha', subtitle: 'Recon Invasions & Basic Waves', icon: '🌑' },
-  { id: 2, name: 'Sector 2: Asteroid Belt', subtitle: 'Rapid Cyber-Drone Swarms', icon: '☄️' },
-  { id: 3, name: 'Sector 3: Mars Orbit', subtitle: 'Armored Mech-Crabs & Behemoths', icon: '🪐' },
-  { id: 4, name: 'Sector 4: Jupiter Rings', subtitle: 'Dense Formations & High-Velocity Attacks', icon: '⚡' },
-  { id: 5, name: 'Sector 5: Deep Space Nebula', subtitle: 'Ultimate Dreadnought Flagship Boss', icon: '🌌' }
+  { id: 1, nameKey: 'sector1Title', subKey: 'sector1Sub', icon: '🌑' },
+  { id: 2, nameKey: 'sector2Title', subKey: 'sector2Sub', icon: '☄️' },
+  { id: 3, nameKey: 'sector3Title', subKey: 'sector3Sub', icon: '🪐' },
+  { id: 4, nameKey: 'sector4Title', subKey: 'sector4Sub', icon: '⚡' },
+  { id: 5, nameKey: 'sector5Title', subKey: 'sector5Sub', icon: '🌌' }
 ];
 
 export class StarMapModal {
@@ -30,16 +31,16 @@ export class StarMapModal {
     this.container.innerHTML = `
       <div class="star-map-container">
         <div class="map-header">
-          <h2 class="map-title">COSMIC SECTOR MAP</h2>
-          <p class="map-subtitle">Defend the solar system against the cyber-invaders!</p>
+          <h2 class="map-title">${t('starMapTitle')}</h2>
+          <p class="map-subtitle">${t('starMapSubtitle')}</p>
         </div>
 
         ${SECTORS.map(sec => {
           return `
             <div class="sector-section">
               <div class="sector-title">
-                <span>${sec.icon} ${sec.name}</span>
-                <span style="font-size: 0.75rem; color: #8ea1c0;">${sec.subtitle}</span>
+                <span>${sec.icon} ${t(sec.nameKey)}</span>
+                <span style="font-size: 0.75rem; color: #8ea1c0;">${t(sec.subKey)}</span>
               </div>
               <div class="sector-nodes-track">
                 ${[1, 2, 3, 4, 5].map(stg => {
