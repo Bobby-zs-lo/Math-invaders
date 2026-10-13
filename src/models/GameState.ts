@@ -138,6 +138,7 @@ export class GameState {
   
   public totalAliensWave: number = 15;
   public aliensDefeated: number = 0;
+  public aliensBreached: number = 0;
   public spawnTimer: number = 0;
   public spawnInterval: number = 2.2; // seconds between alien drops
 

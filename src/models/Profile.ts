@@ -334,6 +334,19 @@ export function loadProfiles(): PlayerProfile[] {
       if (profile.mathSettings.speechEnabled === undefined) {
         profile.mathSettings.speechEnabled = true;
       }
+      if (!profile.stageProgress || typeof profile.stageProgress !== 'object' || Object.keys(profile.stageProgress).length === 0) {
+        profile.stageProgress = {
+          '1-1': { completed: false, stars: 0, highScore: 0, accuracy: 0 }
+        };
+      } else if (!profile.stageProgress['1-1']) {
+        profile.stageProgress['1-1'] = { completed: false, stars: 0, highScore: 0, accuracy: 0 };
+      }
+      if (profile.currentSector === undefined || typeof profile.currentSector !== 'number') {
+        profile.currentSector = 1;
+      }
+      if (profile.currentStage === undefined || typeof profile.currentStage !== 'number') {
+        profile.currentStage = 1;
+      }
       if (!profile.stats) {
         profile.stats = {
           totalSolved: 0,
@@ -386,6 +399,7 @@ export function updateActiveProfile(updated: PlayerProfile): void {
     profiles.push(updated);
   }
   saveProfiles(profiles);
+  setActiveProfile(updated.id);
 }
 
 export function exportBackupJSON(): string {

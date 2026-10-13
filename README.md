@@ -25,6 +25,23 @@ An educational, retro arcade-style math game heavily inspired by *Space Invaders
 
 ---
 
+## 🗺️ Banegemning, Stjernekort & Tablet-Understøttelse (Stage Persistence & Tablet Support)
+
+- **Garanteret banegemning ved gennemførte baner:**
+  - Løst problem, hvor banen ikke blev registreret som fuldført, hvis et rumvæsen slap forbi forsvarslinjen (skjoldet mistede 1 liv).
+  - Spillet sporer nu både besejrede rumvæsner (`aliensDefeated`) og rumvæsner, der slap forbi (`aliensBreached`). Så længe piloten overlever bølgen med mindst 1 skjold i behold, registreres sejren korrekt, point og stjerner tildeles, og den næste bane låses op på stjernekortet!
+  - Forhindrer den uendelige bølge-fælde, hvor spillet tidligere blev ved med at spawne nye formationer ved et enkelt tabt skjold, indtil spilleren fik "Game Over".
+- **Fuld progress-persistens i localStorage:**
+  - `updateActiveProfile()` sikrer nu eksplicit, at den aktive profil-ID (`math_invaders_active_profile_id`) altid gemmes og synkroniseres.
+  - Ved fuldførelse af en bane opdateres `currentStage` og `currentSector` automatisk til den næste oplåste bane.
+  - Når spilleren vender tilbage til stjernekortet via sejrsskærmen eller pausemenuen, genindlæses den aktive profil altid for at vise friske fremskridt.
+- **Robust Touch- & Tablet-Understøttelse:**
+  - Baneknapperne på stjernekortet (`.stage-node`) er optimeret til touchskærme (iPadOS Safari, Android tablets) med `role="button"`, `tabindex="0"`, `touch-action: manipulation` og `-webkit-tap-highlight-color: transparent`.
+  - Tryk og berøring registreres øjeblikkeligt uden forsinkelser eller spøgelsesklik.
+  - Gennemførte baner fremhæves visuelt med en smuk smaragdgrøn glød (`.stage-node.unlocked.completed`) og stjerneikoner (`⭐⭐⭐`), så det altid er tydeligt, hvilke baner der er gennemført, hvilke der er aktive, og hvilke der er låst.
+
+---
+
 ## 🎮 Core Gameplay Mechanics
 
 ### 1. Pedagogical Grade 1–10 Curriculum Engine

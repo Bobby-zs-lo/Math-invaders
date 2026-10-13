@@ -161,6 +161,7 @@ class MathInvadersApp {
       this.difficultyModal = new DifficultyModal(this.modalsRoot, this.profile!, (updated) => {
         this.profile = updated;
         this.updateHeaderUI();
+        if (this.gameEngine) this.gameEngine.updateProfile(updated);
       });
       this.difficultyModal.show();
     }
@@ -383,6 +384,13 @@ class MathInvadersApp {
     if (this.gameEngine) {
       this.gameEngine.stop();
     }
+    const activeProf = getActiveProfile();
+    if (activeProf) {
+      this.profile = activeProf;
+      if (this.gameEngine) {
+        this.gameEngine.updateProfile(activeProf);
+      }
+    }
     document.getElementById('in-game-speed-panel')?.classList.add('hidden');
     document.getElementById('in-game-pause-modal')?.classList.add('hidden');
     this.gameArenaView.classList.add('hidden');
@@ -482,6 +490,10 @@ class MathInvadersApp {
       },
 
       onStageVictory: (stars, coins, diamonds) => {
+        const activeProf = getActiveProfile();
+        if (activeProf) {
+          this.profile = activeProf;
+        }
         this.updateHeaderUI();
         this.victoryModal.showVictory({
           sector: this.currentSector,
@@ -570,10 +582,24 @@ class MathInvadersApp {
     });
 
     document.getElementById('btn-hangar')?.addEventListener('click', () => {
+      const activeProf = getActiveProfile();
+      if (activeProf) {
+        this.profile = activeProf;
+        this.hangarModal = new HangarModal(this.modalsRoot, this.profile, (updated) => {
+          this.profile = updated;
+          this.updateHeaderUI();
+          if (this.gameEngine) this.gameEngine.updateProfile(updated);
+        });
+      }
       if (this.hangarModal) this.hangarModal.show();
     });
 
     document.getElementById('btn-parent-report')?.addEventListener('click', () => {
+      const activeProf = getActiveProfile();
+      if (activeProf) {
+        this.profile = activeProf;
+        this.parentReportModal = new ParentReportModal(this.modalsRoot, this.profile);
+      }
       if (this.parentReportModal) this.parentReportModal.show();
     });
 

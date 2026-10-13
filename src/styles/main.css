@@ -1035,7 +1035,10 @@ html, body {
   justify-content: center;
   cursor: pointer;
   position: relative;
-  transition: transform 0.15s, border-color 0.15s;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .stage-node:hover {
@@ -1047,6 +1050,12 @@ html, body {
   background: radial-gradient(circle, rgba(0, 243, 255, 0.3) 0%, rgba(16, 21, 38, 0.9) 70%);
   border-color: var(--neon-cyan);
   box-shadow: 0 0 14px rgba(0, 243, 255, 0.5);
+}
+
+.stage-node.unlocked.completed {
+  border-color: #00ff66;
+  background: radial-gradient(circle, rgba(0, 255, 102, 0.28) 0%, rgba(16, 21, 38, 0.9) 70%);
+  box-shadow: 0 0 16px rgba(0, 255, 102, 0.55);
 }
 
 .stage-node.current {

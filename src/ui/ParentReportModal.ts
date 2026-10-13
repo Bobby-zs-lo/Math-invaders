@@ -1,5 +1,5 @@
 import type { PlayerProfile } from '../models/Profile.ts';
-import { getDefaultMathSettingsForGrade } from '../models/Profile.ts';
+import { getDefaultMathSettingsForGrade, getActiveProfile } from '../models/Profile.ts';
 import { MathEngine } from '../math/MathEngine.ts';
 import { t, getLanguage } from '../i18n/translations.ts';
 
@@ -15,7 +15,17 @@ export class ParentReportModal {
     this.mathEngine = new MathEngine(settings);
   }
 
+  public updateProfile(newProfile: PlayerProfile): void {
+    this.profile = newProfile;
+    const settings = newProfile.mathSettings || getDefaultMathSettingsForGrade(newProfile.gradeLevel || 2);
+    this.mathEngine = new MathEngine(settings);
+  }
+
   public show(): void {
+    const active = getActiveProfile();
+    if (active && active.id === this.profile.id) {
+      this.profile = active;
+    }
     const isDa = getLanguage() === 'da';
     const stats = this.profile.stats || {
       totalSolved: 0,

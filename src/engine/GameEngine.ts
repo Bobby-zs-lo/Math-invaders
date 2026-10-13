@@ -57,18 +57,18 @@ export class GameEngine {
     });
   }
 
-  public setCallbacks(callbacks: {
+  public setCallbacks(callbacks: Partial<{
     onMathProblemUpdate: (lane: number, question: string, options?: number[]) => void;
     onHudUpdate: (score: number, lives: number, progressRatio: number, tier: number, solved: number, required: number) => void;
     onUpgradeStatusUpdate: (tier: number, solved: number, required: number, problem: MathProblem | null) => void;
     onStageVictory: (stars: number, coinsWon: number, diamondsWon: number) => void;
     onGameOver: () => void;
-  }): void {
-    this.onMathProblemUpdate = callbacks.onMathProblemUpdate;
-    this.onHudUpdate = callbacks.onHudUpdate;
-    this.onUpgradeStatusUpdate = callbacks.onUpgradeStatusUpdate;
-    this.onStageVictory = callbacks.onStageVictory;
-    this.onGameOver = callbacks.onGameOver;
+  }>): void {
+    if (callbacks.onMathProblemUpdate) this.onMathProblemUpdate = callbacks.onMathProblemUpdate;
+    if (callbacks.onHudUpdate) this.onHudUpdate = callbacks.onHudUpdate;
+    if (callbacks.onUpgradeStatusUpdate) this.onUpgradeStatusUpdate = callbacks.onUpgradeStatusUpdate;
+    if (callbacks.onStageVictory) this.onStageVictory = callbacks.onStageVictory;
+    if (callbacks.onGameOver) this.onGameOver = callbacks.onGameOver;
   }
 
   public resizeCanvas(): void {
@@ -135,6 +135,7 @@ export class GameEngine {
     this.state.marchInterval = waveConfig.marchInterval;
     this.state.marchStepY = waveConfig.marchStepY;
     this.state.aliensDefeated = 0;
+    this.state.aliensBreached = 0;
     this.state.isRunning = true;
     this.state.isPaused = false;
     this.state.stageStartTime = performance.now();
@@ -625,7 +626,8 @@ export class GameEngine {
 
     this.renderer.render(this.state, dt);
 
-    const progress = Math.min(1, this.state.aliensDefeated / this.state.totalAliensWave);
+    const totalProcessed = this.state.aliensDefeated + (this.state.aliensBreached || 0);
+    const progress = Math.min(1, totalProcessed / (this.state.totalAliensWave || 1));
     this.onHudUpdate(
       this.state.score,
       this.state.lives,
@@ -878,10 +880,13 @@ export class GameEngine {
     }
 
     // 8. Check Stage Victory
-    if (this.state.aliens.length === 0 && this.state.aliensDefeated < this.state.totalAliensWave) {
-      this.spawnAlienFormation();
-    } else if (!this.state.getActiveBoss() && this.state.aliens.length === 0 && this.state.aliensDefeated >= this.state.totalAliensWave) {
-      this.handleStageVictory();
+    const totalProcessed = this.state.aliensDefeated + (this.state.aliensBreached || 0);
+    if (this.state.aliens.length === 0 && !this.state.isGameOver && this.state.lives > 0) {
+      if (!this.state.getActiveBoss() && totalProcessed >= this.state.totalAliensWave) {
+        this.handleStageVictory();
+      } else if (totalProcessed < this.state.totalAliensWave) {
+        this.spawnAlienFormation();
+      }
     }
   }
 
@@ -917,6 +922,7 @@ export class GameEngine {
 
   private handleAlienBreach(alien: Alien): void {
     this.state.lives--;
+    this.state.aliensBreached++;
     soundEngine.playShieldLost();
     this.spawnExplosionParticles(alien.x, alien.y, '#ff3344', 16);
 
@@ -977,6 +983,7 @@ export class GameEngine {
     const stageKey = `${this.state.sectorId}-${this.state.stageId}`;
     this.profile.coins += Math.floor(coinsWon);
     this.profile.diamonds += diamondsWon;
+    this.profile.stageProgress = this.profile.stageProgress || {};
     this.profile.stageProgress[stageKey] = {
       completed: true,
       stars: Math.max(stars, this.profile.stageProgress[stageKey]?.stars || 0),
@@ -989,11 +996,15 @@ export class GameEngine {
       if (!this.profile.stageProgress[nextKey]) {
         this.profile.stageProgress[nextKey] = { completed: false, stars: 0, highScore: 0, accuracy: 0 };
       }
+      this.profile.currentStage = this.state.stageId + 1;
+      this.profile.currentSector = this.state.sectorId;
     } else if (this.state.sectorId < 5) {
       const nextSectorFirstStage = `${this.state.sectorId + 1}-1`;
       if (!this.profile.stageProgress[nextSectorFirstStage]) {
         this.profile.stageProgress[nextSectorFirstStage] = { completed: false, stars: 0, highScore: 0, accuracy: 0 };
       }
+      this.profile.currentSector = this.state.sectorId + 1;
+      this.profile.currentStage = 1;
     }
 
     updateActiveProfile(this.profile);

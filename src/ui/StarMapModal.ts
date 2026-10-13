@@ -1,5 +1,5 @@
-import { PlayerProfile } from '../models/Profile';
-import { t } from '../i18n/translations';
+import type { PlayerProfile } from '../models/Profile.ts';
+import { t } from '../i18n/translations.ts';
 
 export interface SectorInfo {
   id: number;
@@ -45,7 +45,8 @@ export class StarMapModal {
               <div class="sector-nodes-track">
                 ${[1, 2, 3, 4, 5].map(stg => {
                   const key = `${sec.id}-${stg}`;
-                  const progress = this.profile.stageProgress[key];
+                  const stageProgress = this.profile.stageProgress || {};
+                  const progress = stageProgress[key];
                   const isFirstStage = sec.id === 1 && stg === 1;
                   const isUnlocked = isFirstStage || progress !== undefined;
                   const stars = progress?.stars || 0;
@@ -63,7 +64,12 @@ export class StarMapModal {
                   if (stars === 3) starIcons = '⭐⭐⭐';
 
                   return `
-                    <div class="stage-node ${statusClass} ${isBoss ? 'boss-node' : ''}" data-sector="${sec.id}" data-stage="${stg}">
+                    <div class="stage-node ${statusClass} ${isBoss ? 'boss-node' : ''}"
+                         role="button"
+                         tabindex="${isUnlocked ? '0' : '-1'}"
+                         aria-label="${t(sec.nameKey)} - Stage ${stg} ${isCompleted ? '(Fuldført)' : isUnlocked ? '(Åben)' : '(Låst)'}"
+                         data-sector="${sec.id}"
+                         data-stage="${stg}">
                       <span class="node-num">${isBoss ? '👑' : stg}</span>
                       <span class="node-stars" style="color: #ffe600;">${isUnlocked ? starIcons : '🔒'}</span>
                     </div>
@@ -81,11 +87,20 @@ export class StarMapModal {
 
   private bindEvents(): void {
     this.container.querySelectorAll('.stage-node.unlocked').forEach(node => {
-      node.addEventListener('click', (e) => {
-        const el = e.currentTarget as HTMLElement;
+      const handleSelect = (e: Event) => {
+        const el = (e.currentTarget || node) as HTMLElement;
         const sec = parseInt(el.getAttribute('data-sector') || '1', 10);
         const stg = parseInt(el.getAttribute('data-stage') || '1', 10);
         this.onStageSelect(sec, stg);
+      };
+
+      node.addEventListener('click', handleSelect);
+      node.addEventListener('keydown', (e: Event) => {
+        const ke = e as KeyboardEvent;
+        if (ke.key === 'Enter' || ke.key === ' ') {
+          e.preventDefault();
+          handleSelect(e);
+        }
       });
     });
   }
